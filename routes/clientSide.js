@@ -1,8 +1,8 @@
 const router = require("express").Router();
-const path = require("path");
-const Workoutdb = require("../models")
+// const path = require("path");
+const Workoutdb = require("../models/workout")
 
-router.get('/api/workouts/', async ({ body }, res) =>{
+router.post('/api/workouts/', async ({ body }, res) =>{
     try{
         const wrkoutData = await Workoutdb.create({})
         res.status(200).json(wrkoutData)
@@ -14,9 +14,13 @@ router.get('/api/workouts/', async ({ body }, res) =>{
 })
 
 
-router.post("/api/workouts/:id", async ({body}, res) => {
+router.put("/api/workouts/:id", async ({params ,body}, res) => {
     try{
-        const wrkoutData = await Workoutdb.findOneAndUpdate({id:params.id}, { $push: { books: _id } }, { new: true })
+        const wrkoutData = await Workoutdb.findByIdAndUpdate(
+            params.id,
+             { $push: { exercises: body} }, 
+             { new: true }
+             )
         res.status(200).json(wrkoutData);
     }    
       catch(err) {
@@ -26,19 +30,35 @@ router.post("/api/workouts/:id", async ({body}, res) => {
 
 
 
-    router.get('api/workouts/range', async (req , res) => {
+    router.get('/api/workouts/range', async (req , res) => {
         try {
-            const wrkoutData = await Workoutdb.find()
-            res.status(200).json(wrkoutData).limit(7)
+            const wrkoutData = await Workoutdb.aggregate([
+                {
+                    $addFields:{
+                        totalDuration:{
+                            $sum:'$exercises.duration'
+                        }
+                    }
+                }
+            ]).sort({_id:1}).limit(7)
+            res.status(200).json(wrkoutData)
         } catch (err) {
             res.status(400).json(err)
         }
     })
     
 
-    router.get('api/workouts', async (req , res) => {
+    router.get('/api/workouts', async (req , res) => {
         try {
-            const wrkoutData = await Workoutdb.find()
+            const wrkoutData = await Workoutdb.aggregate([
+                {
+                    $addFields:{
+                        totalDuration:{
+                            $sum:'$exercises.duration'
+                        }
+                    }
+                }
+            ])
             res.status(200).json(wrkoutData)
         } catch (err) {
             res.status(400).json(err)

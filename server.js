@@ -1,5 +1,5 @@
-const logger = require("morgan");
 const mongoose = require("mongoose");
+const logger = require("morgan");
 const express = require("express");
 
 
@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/Warrior", { useNewUrlParser: true });
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workout", { useNewUrlParser: true });
 
 app.use(require("./routes/homeRoutes"));
 app.use(require("./routes/clientSide.js"))
